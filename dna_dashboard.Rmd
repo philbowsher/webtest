@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(DT)
+
+gwas_clinvar_annotated <- read_csv("gwas_clinvar_annotated.csv")
+gwas_clinvar_annotated
+
+gwas_clinvar_annotated_path <- gwas_clinvar_annotated %>%
+ filter(!(ClinicalSignificance %in% c("Uncertain significance", "Conflicting interpretations of pathogenicity"
+)))
+
+gwas_clinvar_annotated_path
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+dv1 <- ggplot(gwas_clinvar_annotated_path) +
+  aes(x = Pos, y = LOG10P) +
+  geom_point(shape = "circle", size = 1.5, colour = "#112446") +
+  theme_minimal() +
+  facet_wrap(vars(Chr))
+
+ggplotly(dv1)
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+ggplot(gwas_clinvar_annotated_path) +
+  aes(x = ClinicalSignificance, weight = Pos) +
+  geom_bar(fill = "#112446") +
+  coord_flip() +
+  theme_minimal() +
+  facet_wrap(vars(Chr))
+```
+
+### Chart C
+
+```{r}
+
+datatable(gwas_clinvar_annotated_path, options = list(pageLength = 5))
+
+```
+
